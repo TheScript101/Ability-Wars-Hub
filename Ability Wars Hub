@@ -440,8 +440,10 @@ local AntisTab = Window:MakeTab({
 local AntiVoidEnabled = false
 local runService = game:GetService("RunService")
 
--- Position thresholds (minimum)
-local threshold = Vector3.new(30, -34, 123)
+-- Updated threshold (minimum)
+local threshold = Vector3.new(-27, -24, 145)
+
+-- Safe position to teleport to
 local safePosition = Vector3.new(-3, 28, 104)
 
 -- Connection for the anti-void loop
