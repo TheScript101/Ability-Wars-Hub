@@ -429,9 +429,6 @@ CharacterTab:AddToggle({
 })
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ANTIS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
-local Window = OrionLib:MakeWindow({Name = "Slap Battles MODDED", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
-
 -- ANTI'S TAB
 local AntisTab = Window:MakeTab({
 	Name = "Anti's",
