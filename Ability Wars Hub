@@ -441,30 +441,39 @@ local AntisTab = Window:MakeTab({
 local safePosition = Vector3.new(-101, 18, -93)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+local antiVoidEnabled = false
+local connection -- for toggling on/off cleanly
 
--- Update character on respawn
+-- Update character when it respawns
 player.CharacterAdded:Connect(function(char)
 	character = char
 end)
 
-local antiVoidEnabled = false
-
+-- Anti Void Toggle
 AntisTab:AddToggle({
 	Name = "Anti Void (Teleport)",
 	Default = false,
 	Callback = function(Value)
 		antiVoidEnabled = Value
-	end    
-})
 
--- Check Y position each frame
-game:GetService("RunService").RenderStepped:Connect(function()
-	if antiVoidEnabled and character and character:FindFirstChild("HumanoidRootPart") then
-		if character.HumanoidRootPart.Position.Y < -24 then
-			character:MoveTo(safePosition)
+		-- Disconnect any previous connection
+		if connection then
+			connection:Disconnect()
+			connection = nil
+		end
+
+		if antiVoidEnabled then
+			connection = game:GetService("RunService").RenderStepped:Connect(function()
+				character = player.Character
+				if character and character:FindFirstChild("HumanoidRootPart") then
+					if character.HumanoidRootPart.Position.Y < -24 then
+						character:MoveTo(safePosition)
+					end
+				end
+			end)
 		end
 	end
-end)
+})
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ORION UI TOGGLE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local toggleGui = Instance.new("ScreenGui")
