@@ -428,6 +428,63 @@ CharacterTab:AddToggle({
     end
 })
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ANTIS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
+local Window = OrionLib:MakeWindow({Name = "Slap Battles MODDED", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+-- ANTI'S TAB
+local AntisTab = Window:MakeTab({
+	Name = "Anti's",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+-- Toggle state
+local AntiVoidEnabled = false
+local runService = game:GetService("RunService")
+
+-- Position thresholds (minimum)
+local threshold = Vector3.new(30, -34, 123)
+local safePosition = Vector3.new(-3, 28, 104)
+
+-- Connection for the anti-void loop
+local connection
+
+-- Function to enable Anti-Void
+local function startAntiVoid()
+	connection = runService.Heartbeat:Connect(function()
+		local player = game.Players.LocalPlayer
+		local character = player.Character
+		if character and character:FindFirstChild("HumanoidRootPart") then
+			local pos = character.HumanoidRootPart.Position
+			if pos.X <= threshold.X and pos.Y <= threshold.Y and pos.Z <= threshold.Z then
+				character.HumanoidRootPart.CFrame = CFrame.new(safePosition)
+			end
+		end
+	end)
+end
+
+-- Function to disable Anti-Void
+local function stopAntiVoid()
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+end
+
+-- Anti-Void Toggle
+AntisTab:AddToggle({
+	Name = "Anti-Void",
+	Default = false,
+	Callback = function(Value)
+		AntiVoidEnabled = Value
+		if AntiVoidEnabled then
+			startAntiVoid()
+		else
+			stopAntiVoid()
+		end
+	end
+})
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ORION UI TOGGLE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
