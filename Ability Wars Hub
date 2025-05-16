@@ -226,23 +226,21 @@ local function startExtender()
         applyHitboxIfNPC(obj)
     end)
 
-    -- periodic fallback scan
+    -- periodic fallback
     periodicThread = task.spawn(function()
         while HitboxToggle do
             task.wait(5)
             initialScan()
         end
     end)
-end
+end  -- ← This `end` was missing
 
 local function stopExtender()
-    -- disable loops
     HitboxToggle = false
     if descendantConn then
         descendantConn:Disconnect()
         descendantConn = nil
     end
-    -- periodicThread will exit on next loop check
 end
 
 -- Combat tab
@@ -298,3 +296,96 @@ CombatTab:AddTextbox({
         end
     end
 })
+
+CombatTab:AddLabel("⚠️ Do not put NPC Hitbox Size to 1 or under.")
+
+--// Default globals
+getgenv().CustomHitboxEnabled = false
+getgenv().CustomHitboxSize = 15
+
+--// TextBox for hitbox size
+CombatTab:TextBox({
+    Name = "Hitbox Size",
+    Default = "15",
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            getgenv().CustomHitboxSize = num
+        else
+            warn("Hitbox Size must be a number!")
+        end
+    end
+})
+
+--// Toggle to enable/disable enlarged hitboxes
+CombatTab:Toggle({
+    Name = "Enable Player Hitbox",
+    Default = false,
+    Callback = function(state)
+        getgenv().CustomHitboxEnabled = state
+
+        if state then
+            task.spawn(function()
+                while getgenv().CustomHitboxEnabled do
+                    for _, plr in ipairs(Players:GetPlayers()) do
+                        if plr ~= Players.LocalPlayer and plr.Character then
+                            local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                pcall(function()
+                                    hrp.Size        = Vector3.new(getgenv().CustomHitboxSize, getgenv().CustomHitboxSize, getgenv().CustomHitboxSize)
+                                    hrp.Transparency = 0.8
+                                    hrp.Material     = Enum.Material.Neon
+                                    hrp.BrickColor   = BrickColor.new("Really black")
+                                    hrp.CanCollide   = false
+                                end)
+                            end
+                        end
+                    end
+                    task.wait(0.1)
+                end
+
+                -- Reset hitboxes
+                for _, plr in ipairs(Players:GetPlayers()) do
+                    if plr ~= Players.LocalPlayer and plr.Character then
+                        local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            pcall(function()
+                                hrp.Size        = Vector3.new(2, 2, 1)
+                                hrp.Transparency = 1
+                                hrp.Material     = Enum.Material.Plastic
+                                hrp.BrickColor   = BrickColor.new("Medium stone grey")
+                                hrp.CanCollide   = false
+                            end)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ORION UI TOGGLE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local toggleGui = Instance.new("ScreenGui")
+toggleGui.Name = "OrionToggleGui"
+toggleGui.ResetOnSpawn = false
+toggleGui.Parent = playerGui
+
+local toggleButton = Instance.new("ImageButton", toggleGui)
+toggleButton.Name = "OrionToggleButton"
+toggleButton.AnchorPoint = Vector2.new(1, 0)
+toggleButton.Position = UDim2.new(1, -60, 0, 10)  -- moved left for larger size
+toggleButton.Size = UDim2.new(0, 50, 0, 50)        -- size increased from 30x30 to 45x45
+toggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+toggleButton.BorderSizePixel = 0
+toggleButton.Image = "rbxthumb://type=Asset&id=12238439034&w=420&h=420"
+
+toggleButton.MouseButton1Click:Connect(function()
+    local orionGui = game.CoreGui:FindFirstChild("Orion")
+    if not orionGui and gethui then
+        orionGui = gethui():FindFirstChild("Orion")
+    end
+    if orionGui then
+        orionGui.Enabled = not orionGui.Enabled
+    end
+end)
