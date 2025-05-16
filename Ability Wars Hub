@@ -363,8 +363,73 @@ CombatTab:AddToggle({
         end
     end
 })
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- CHARACTER TAB -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--// Character Tab
+local CharacterTab = Window:MakeTab({
+    Name = "Character",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ORION UI TOGGLE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--// Noclip Toggle
+getgenv().NoclipEnabled = false
+local noclipConnection
+
+CharacterTab:AddToggle({
+    Name = "Noclip",
+    Default = false,
+    Callback = function(state)
+        getgenv().NoclipEnabled = state
+
+        if state then
+            noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    for _, part in ipairs(char:GetDescendants()) do
+                        if part:IsA("BasePart") and part.CanCollide then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        else
+            if noclipConnection then
+                noclipConnection:Disconnect()
+                noclipConnection = nil
+            end
+        end
+    end
+})
+
+--// Infinite Jump Toggle
+getgenv().InfJumpEnabled = false
+local userInput = game:GetService("UserInputService")
+local jumpedConnection
+
+CharacterTab:AddToggle({
+    Name = "Infinite Jump",
+    Default = false,
+    Callback = function(state)
+        getgenv().InfJumpEnabled = state
+
+        if state then
+            jumpedConnection = userInput.JumpRequest:Connect(function()
+                local char = game.Players.LocalPlayer.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    char.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+        else
+            if jumpedConnection then
+                jumpedConnection:Disconnect()
+                jumpedConnection = nil
+            end
+        end
+    end
+})
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ORION UI TOGGLE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local toggleGui = Instance.new("ScreenGui")
 toggleGui.Name = "OrionToggleGui"
