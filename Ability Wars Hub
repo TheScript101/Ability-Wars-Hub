@@ -304,7 +304,7 @@ getgenv().CustomHitboxEnabled = false
 getgenv().CustomHitboxSize = 15
 
 --// TextBox for hitbox size
-CombatTab:TextBox({
+CombatTab:AddTextbox({
     Name = "Hitbox Size",
     Default = "15",
     Callback = function(value)
@@ -318,7 +318,7 @@ CombatTab:TextBox({
 })
 
 --// Toggle to enable/disable enlarged hitboxes
-CombatTab:Toggle({
+CombatTab:AddToggle({
     Name = "Enable Player Hitbox",
     Default = false,
     Callback = function(state)
