@@ -438,7 +438,7 @@ local AntisTab = Window:MakeTab({
 	PremiumOnly = false
 })
 
-local safePosition = Vector3.new(-105, 18, -88)
+local safePosition = Vector3.new(-101, 18, -93)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 
