@@ -429,62 +429,42 @@ CharacterTab:AddToggle({
 })
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ANTIS -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- ANTI'S TAB
+-- Assuming OrionLib and Window already exist
+
+-- Antis Tab
 local AntisTab = Window:MakeTab({
-	Name = "Anti's",
+	Name = "Antis",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
 
--- Toggle state
-local AntiVoidEnabled = false
-local runService = game:GetService("RunService")
+local safePosition = Vector3.new(-109, 21, -82)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
 
--- Updated threshold (minimum)
-local threshold = Vector3.new(-27, -24, 145)
+-- Update character on respawn
+player.CharacterAdded:Connect(function(char)
+	character = char
+end)
 
--- Safe position to teleport to
-local safePosition = Vector3.new(-3, 28, 104)
+local antiVoidEnabled = false
 
--- Connection for the anti-void loop
-local connection
-
--- Function to enable Anti-Void
-local function startAntiVoid()
-	connection = runService.Heartbeat:Connect(function()
-		local player = game.Players.LocalPlayer
-		local character = player.Character
-		if character and character:FindFirstChild("HumanoidRootPart") then
-			local pos = character.HumanoidRootPart.Position
-			if pos.X <= threshold.X and pos.Y <= threshold.Y and pos.Z <= threshold.Z then
-				character.HumanoidRootPart.CFrame = CFrame.new(safePosition)
-			end
-		end
-	end)
-end
-
--- Function to disable Anti-Void
-local function stopAntiVoid()
-	if connection then
-		connection:Disconnect()
-		connection = nil
-	end
-end
-
--- Anti-Void Toggle
 AntisTab:AddToggle({
-	Name = "Anti-Void",
+	Name = "Anti Void (Teleport)",
 	Default = false,
 	Callback = function(Value)
-		AntiVoidEnabled = Value
-		if AntiVoidEnabled then
-			startAntiVoid()
-		else
-			stopAntiVoid()
-		end
-	end
+		antiVoidEnabled = Value
+	end    
 })
 
+-- Check Y position each frame
+game:GetService("RunService").RenderStepped:Connect(function()
+	if antiVoidEnabled and character and character:FindFirstChild("HumanoidRootPart") then
+		if character.HumanoidRootPart.Position.Y < -24 then
+			character:MoveTo(safePosition)
+		end
+	end
+end)
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ORION UI TOGGLE -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local toggleGui = Instance.new("ScreenGui")
